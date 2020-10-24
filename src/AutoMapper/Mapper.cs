@@ -89,13 +89,10 @@ namespace AutoMapper
         private TDestination MapCore<TSource, TDestination>(
             TSource source, TDestination destination, ResolutionContext context, Type sourceType = null, Type destinationType = null, IMemberMap memberMap = null)
         {
-            return ConfigurationProvider.Internal().GetExecutionPlan<TSource, TDestination>(MapRequest())(source, destination, context);
-            MapRequest MapRequest()
-            {
-                var runtimeTypes = new TypePair(source?.GetType() ?? sourceType ?? typeof(TSource), destination?.GetType() ?? destinationType ?? typeof(TDestination));
-                var requestedTypes = new TypePair(typeof(TSource), typeof(TDestination));
-                return new MapRequest(requestedTypes, runtimeTypes, memberMap);
-            }
+            var runtimeTypes = new TypePair(source?.GetType() ?? sourceType ?? typeof(TSource), destination?.GetType() ?? destinationType ?? typeof(TDestination));
+            var requestedTypes = new TypePair(typeof(TSource), typeof(TDestination));
+            var mapRequest = new MapRequest(requestedTypes, runtimeTypes, memberMap);
+            return ((IGlobalConfiguration)ConfigurationProvider).GetExecutionPlan<TSource, TDestination>(mapRequest)(source, destination, context);
         }
     }
 }

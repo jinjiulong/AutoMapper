@@ -33,13 +33,15 @@ namespace AutoMapper
         protected Profile()
         {
             ProfileName = GetType().FullName;
-
+            SourceMemberNamingConvention ??= PascalCaseNamingConvention.Instance;
+            DestinationMemberNamingConvention ??= PascalCaseNamingConvention.Instance;
             this.Internal().AddMemberConfiguration()
-                .AddMember<NameSplitMember>()
+                .AddMember<NameSplitMember>(n=>
+                {
+                    n.SourceMemberNamingConvention = SourceMemberNamingConvention;
+                    n.DestinationMemberNamingConvention = DestinationMemberNamingConvention;
+                })
                 .AddName<PrePostfixName>(_ => _.AddStrings(p => p.Prefixes, "Get"));
-
-            SourceMemberNamingConvention = new PascalCaseNamingConvention();
-            DestinationMemberNamingConvention = new PascalCaseNamingConvention();
         }
 
         protected Profile(string profileName, Action<IProfileExpression> configurationAction)
@@ -70,8 +72,8 @@ namespace AutoMapper
         public Func<FieldInfo, bool> ShouldMapField { get; set; }
         public Func<MethodInfo, bool> ShouldMapMethod { get; set; }
         public Func<ConstructorInfo, bool> ShouldUseConstructor { get; set; }
-        public INamingConvention SourceMemberNamingConvention { get; set; }
-        public INamingConvention DestinationMemberNamingConvention { get; set; }
+        public virtual INamingConvention SourceMemberNamingConvention { get; set; }
+        public virtual INamingConvention DestinationMemberNamingConvention { get; set; }
         public IList<ValueTransformerConfiguration> ValueTransformers => _valueTransformerConfigs;
 
         public void DisableConstructorMapping() => _constructorMappingEnabled = false;
